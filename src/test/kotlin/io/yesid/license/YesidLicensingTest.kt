@@ -1,4 +1,4 @@
-package io.yesid.licensing
+package io.yesid.license
 import io.micronaut.runtime.EmbeddedApplication
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions
