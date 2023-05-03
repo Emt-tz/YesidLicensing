@@ -36,8 +36,14 @@ dependencies {
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
     compileOnly("jakarta.persistence:jakarta.persistence-api:3.0.0")
     compileOnly("jakarta.persistence:jakarta.persistence-api:2.2.3")
+    implementation("org.flywaydb:flyway-core:8.0.4")
+
     // security
    // implementation("io.micronaut.security:micronaut-security-jwt")
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    implementation("io.micronaut.security:micronaut-security-jwt")
+
+
 
 
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
