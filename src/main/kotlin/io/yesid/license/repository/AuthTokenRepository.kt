@@ -1,4 +1,4 @@
-package io.yesid.license.services
+package io.yesid.license.repository
 
 import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
@@ -6,6 +6,7 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.CrudRepository
 import io.yesid.license.domain.AuthToken
 import java.util.*
+
 
 @JdbcRepository(dialect = Dialect.H2)
 interface AuthTokenRepository : CrudRepository<AuthToken, Long> {

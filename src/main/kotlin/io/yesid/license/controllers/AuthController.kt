@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.Operation
 import io.yesid.license.domain.*
 import io.yesid.license.models.LoginRequest
 import io.yesid.license.models.LoginResponse
-import io.yesid.license.services.AuthTokenRepository
-import io.yesid.license.services.UserRepository
+import io.yesid.license.repository.AuthTokenRepository
+import io.yesid.license.repository.UserRepository
 import jakarta.inject.Inject
 import java.util.*
 
@@ -18,10 +18,10 @@ import java.util.*
 class AuthController {
 
     @Inject
-    lateinit var userService: UserRepository
+    lateinit var userRepository: UserRepository
 
     @Inject
-    lateinit var authTokenService: AuthTokenRepository
+    lateinit var authTokenRepository: AuthTokenRepository
 
     @Post(uri = "/login")
     @Produces("application/json")
@@ -32,8 +32,8 @@ class AuthController {
         @Body requestBody: LoginRequest,
     ): HttpResponse<LoginResponse> {
         // check user by username or email
-        val user = requestBody.username?.let { userService.findByUsername(it) }
-            ?: userService.findByEmail(requestBody.email)
+        val user = requestBody.username?.let { userRepository.findByUsername(it) }
+            ?: userRepository.findByEmail(requestBody.email)
             ?: return HttpResponse.badRequest(
                 LoginResponse(
                     message = "User with username or email does not exist."
@@ -48,9 +48,9 @@ class AuthController {
             )
         }
         val authToken = AuthToken(userId = user.id)
-        if (user.id?.let { authTokenService.findTokenByUserId(userId = it) } != null)
-            authToken.userId?.let { authTokenService.deleteTokenByUserId(it) }
-        authTokenService.save(authToken)
+        if (user.id?.let { authTokenRepository.findTokenByUserId(userId = it) } != null)
+            authToken.userId?.let { authTokenRepository.deleteTokenByUserId(it) }
+        authTokenRepository.save(authToken)
         return HttpResponse.ok(
             LoginResponse(
                 authToken = authToken,
@@ -73,10 +73,10 @@ class AuthController {
             role = "USER"
         )
         // before saving a user check if the username or email already exists respond with user exists
-        if (userService.findByUsername(user.username) != null || userService.findByEmail(user.email) != null) {
+        if (userRepository.findByUsername(user.username) != null || userRepository.findByEmail(user.email) != null) {
             return HttpResponse.badRequest(CreateUserResponse(message = "User with username or email already exists."))
         }
-        val createdUser = userService.save(user)
+        val createdUser = userRepository.save(user)
         return HttpResponse.ok(
             CreateUserResponse(
                 userId = createdUser.id,
@@ -96,7 +96,7 @@ class AuthController {
         @PathVariable id: Long,
         @Body requestBody: UpdateUserRequest,
     ): HttpResponse<UpdateUserResponse> {
-        val existingUser = userService.findById(id)
+        val existingUser = userRepository.findById(id)
             ?: return HttpResponse.notFound()
 
         val updatedUser = existingUser.get().copy(
@@ -104,7 +104,7 @@ class AuthController {
             email = requestBody.email ?: existingUser.get().email,
             password = requestBody.password ?: existingUser.get().password,
         )
-        userService.update(updatedUser)
+        userRepository.update(updatedUser)
         return HttpResponse.ok(updatedUser.id?.let { UpdateUserResponse(it) })
     }
 
@@ -113,10 +113,10 @@ class AuthController {
     fun deleteUser(
         @PathVariable id: Long,
     ): HttpResponse<Unit> {
-        val existingUser = userService.findById(id)
+        val existingUser = userRepository.findById(id)
             ?: return HttpResponse.notFound()
 
-        userService.delete(existingUser.get())
+        userRepository.delete(existingUser.get())
         return HttpResponse.noContent()
     }
 
@@ -124,7 +124,7 @@ class AuthController {
     @Produces("application/json")
     @Operation(summary = "List all users")
     fun listUsers(): HttpResponse<List<User>> {
-        val users = userService.findAll()
+        val users = userRepository.findAll()
         return HttpResponse.ok(users)
     }
 
@@ -134,9 +134,10 @@ class AuthController {
     fun getUserById(
         @PathVariable id: Long,
     ): HttpResponse<User> {
-        val user = userService.findById(id)
+        val user = userRepository.findById(id)
             ?: return HttpResponse.notFound()
 
         return HttpResponse.ok(user.get())
     }
+
 }

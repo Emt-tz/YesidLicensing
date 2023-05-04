@@ -1,4 +1,4 @@
-package io.yesid.license.services
+package io.yesid.license.repository
 
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
